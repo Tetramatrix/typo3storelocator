@@ -1,0 +1,10 @@
+config.language = at
+
+plugin.tx_chhaendlersuche_pi1 {
+	templateFile = EXT:ch_haendlersuche/static/default.html
+	Land = AT
+	Umkreis = 50
+	CUSTCLASSIFICATIONID = *
+	LINEDISC = *
+	Kontaktdaten = 0
+}

@@ -1,0 +1,5 @@
+config.language = de
+
+plugin.tx_chhaendlersuche_pi1 {
+        templateFile = EXT:ch_haendlersuche/static/default.html
+}

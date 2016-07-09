@@ -1,0 +1,110 @@
+###DEALERLOOKUP###
+	<script src="http://maps.google.com/maps?file=api&v=2&sensor=false&key=###APIKEY###&hl=de" type="text/javascript"></script>
+	<script type="text/javascript">
+	//<![CDATA[
+		var dirObj = new GDirections(), map, redIcon8, errorMsg = "###ERRORMSG###", maxMapScale = ###ZOOMLEVEL###, latlng = new GLatLng(###LATLNG###);
+		GEvent.addListener(dirObj, "load", onDirectionsLoad);
+		GEvent.addListener(dirObj, "error", onDirectionsError);
+		baseIcon2 = new GIcon();
+		baseIcon2.iconSize=new GSize(8,8);
+		baseIcon2.iconAnchor=new GPoint(4,4);
+		baseIcon2.infoWindowAnchor=new GPoint(4,0);
+		redIcon8 = (new GIcon(baseIcon2, extPath+"/redSquare_8.png", null, ""));
+		function onDirectionsError() {
+			GLog.write('Error: ' + dirObj.getStatus().code);
+		}
+		function initMap() {
+			map = new GMap2(document.getElementById("map"), {mapTypes:[G_NORMAL_MAP, G_HYBRID_MAP,  G_SATELLITE_MAP], draggableCursor:"crosshair"});
+			//~ map.setMapType(G_SATELLITE_MAP);
+			var overlayControl = new GOverviewMapControl();
+			map.addControl(overlayControl);
+			map.setCenter(latlng, maxMapScale, G_NORMAL_MAP);
+			map.enableScrollWheelZoom();
+			map.addControl(new GScaleControl());
+			map.addControl(new GLargeMapControl());
+			map.addControl(new GMapTypeControl());
+       			GEvent.addListener(
+                		map,
+                		'error',
+                		function () {
+                        		GLog.write(map.getStatus().code);
+                		}
+        		);
+			var mt = map.getMapTypes();
+				// Overwrite the getMinimumResolution() and getMaximumResolution() methods
+			for (var i=0; i<mt.length; i++) {
+			    mt[i].getMinimumResolution = function() {return maxMapScale;}
+			    mt[i].getMaximumResolution = function() {return 11;}
+			}
+			GEvent.addListener(map, "zoomend", function() {
+				 sndReq(gQuery, gPage, new Boolean(centerMarker), new Boolean(1)) ;
+			});
+		}
+		var gField, gValue, gQuery, gAction, gDynamic=0, gDynamicFactor = '###DYNAMIC###';
+		function ajaxObj (value, http, query, page, init) {
+			gValue = value; gQuery = query; gPage = page;
+			url = '###SNDREQ###'; kontaktdaten = new Boolean(###KONTAKTDATEN###); umkreis = '###UMKREIS###';
+			q = 	'&value='+encodeURIComponent(value)
+				+'&query='+query
+				+'&umkreis='+umkreis
+				+'&land=###LAND###'
+				+'&CUSTCLASSIFICATIONID=###CUSTCLASSIFICATIONID###'
+				+'&LINEDISC=###LINEDISC###'
+				+'&kontaktdaten='+kontaktdaten
+				+'&zoomlevel='+map.getZoom()
+				+'&apikey=###AJAXAPIKEY###'
+				+'&page='+page
+				+'&dynamic='+gDynamic
+				+'&dynamicFactor='+gDynamicFactor
+				+'&eID=ch_haendlersuche';
+			if (gQuery == "dynamic") {
+				gDynamic=1;
+			}
+			if (http) {
+					http.open('GET', url+q, true);
+					http.ajaxObj = http;
+					http.kontaktdaten = kontaktdaten;
+					http.umkreis = umkreis;
+					http.query = query;
+					http.value = value;
+					http.page = page;
+					http.init = init;
+					http.onreadystatechange =  function() {
+						if (this.readyState != 4)
+							return;
+						if (this.status == 200) {
+							handleResponse(this.ajaxObj, this.kontaktdaten, this.umkreis, this.query, this.value, this.page, this.init); 
+						} 
+					};
+					http.setRequestHeader("Content-type", "application/x-www-form-urlencoded;charset=UTF-8");
+					//http.setRequestHeader("Content-length", q.length);
+					//http.setRequestHeader("Connection", "close");
+					http.send(q);
+			}
+		}
+	//]]>
+	</script>
+	<form action="###FORM###" id="haendlersuche" name="haendlersuche" method="post" enctype="multipart/form-data">
+		<ul class="tabset_tabs">
+			<li><a href="#tab1" class="active">###ZIPCODE###</a></li>
+			<li><a href="#tab2">###CITY###</a></li>
+			<li><a href="#tab3">###DEALER###</a></li>
+		</ul>
+		<div id="tab1" class="tabset_content">
+			<h2 class="tabset_label">###ZIPCODE###</h2>
+			<div class="row_01_01">###BOUNDS###</div><div style="clear:both"></div>
+			<div class="row_02_01">###START###</div><input class="row_02_02" type="text" name="plz" value=""><input style="margin-left:10px" type="button" value="###SEND###" onClick="sndReq('zipcode'); return false;">
+		</div>
+		<div id="tab2" class="tabset_content">
+			<h2 class="tabset_label">###CITY###</h2>
+			<div class="row_01_01">###BOUNDS###</div><div style="clear:both"></div>
+			<div class="row_02_01">###START###</div><input class="row_02_02" type="text" name="ort" value=""><input style="margin-left:10px" type="button" value="###SEND###" onClick="sndReq('name'); return false;">
+		</div>
+		<div id="tab3" class="tabset_content">
+			<h2 class="tabset_label">###DEALER###</h2>
+			<div class="row_01_01">###DEALER###</div><div style="clear:both"></div>
+			<div class="row_02_01">###START###</div><input class="row_02_02" type="text" name="haendler" value=""><input style="margin-left:10px" type="button" value="###SEND###" onClick="sndReq('dealer');return false;">
+		</div><div style="clear:both"></div>
+	<div id="treffer"><div class="headline">###LIST###</div><div class="ergebnis">###MARKER###</div></div><div id="map" style="margin-left:340px;width: 460px; height: 400px"></div><div style="padding-top:20px;background-color:#ffffff"></div></form>
+	<script type="text/javascript">initMap();</script>
+###DEALERLOOKUP###

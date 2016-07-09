@@ -1,0 +1,2 @@
+# cat=basic; type=string; label= Google-Map-Api-Key
+ apikey = ABQIAAAAZRmeRbHHgC1jBnVRK7EU9hRDTfyl2jn62xGw34QbZsTdd3vUSxRksAMYw7PNk7SGQz7YzsyAOwTopg
